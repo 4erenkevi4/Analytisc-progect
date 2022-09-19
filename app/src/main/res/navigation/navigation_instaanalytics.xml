@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_instaanalytics.xml"
+    app:startDestination="@id/fragmentAutentification">
+    <fragment
+        android:id="@+id/fragmentSelfProfile"
+        android:name="com.cher.instaanalytics.fragments.FragmentSelfProfile"
+        android:label="FragmentSelfProfile">
+        <action
+            android:id="@+id/action_fragmentSelfProfile_to_fragmentListFolowers"
+            app:destination="@id/fragmentListFolowers" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentAutentification"
+        android:name="com.cher.instaanalytics.fragments.FragmentAutentification"
+        android:label="FragmentAutentification">
+        <action
+            android:id="@+id/action_fragmentAutentification_to_fragmentSelfProfile"
+            app:destination="@id/fragmentSelfProfile" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragmentListFolowers"
+        android:name="com.cher.instaanalytics.fragments.FragmentListFolowers"
+        android:label="FragmentListFolowers" />
+    <action
+        android:id="@+id/action_global_fragmentAutentification"
+        app:destination="@id/fragmentAutentification" />
+    <action
+        android:id="@+id/action_global_fragmentSelfProfile"
+        app:destination="@id/fragmentSelfProfile" />
+</navigation>
