@@ -6,7 +6,7 @@
     app:startDestination="@id/fragmentAutentification">
     <fragment
         android:id="@+id/fragmentSelfProfile"
-        android:name="com.cher.instaanalytics.fragments.FragmentSelfProfile"
+        android:name="com.cher.analytics.fragments.FragmentSelfProfile"
         android:label="FragmentSelfProfile">
         <action
             android:id="@+id/action_fragmentSelfProfile_to_fragmentListFolowers"
@@ -14,7 +14,7 @@
     </fragment>
     <fragment
         android:id="@+id/fragmentAutentification"
-        android:name="com.cher.instaanalytics.fragments.FragmentAutentification"
+        android:name="com.cher.analytics.fragments.FragmentAutentification"
         android:label="FragmentAutentification">
         <action
             android:id="@+id/action_fragmentAutentification_to_fragmentSelfProfile"
@@ -22,7 +22,7 @@
     </fragment>
     <fragment
         android:id="@+id/fragmentListFolowers"
-        android:name="com.cher.instaanalytics.fragments.FragmentListFolowers"
+        android:name="com.cher.analytics.fragments.FragmentListFolowers"
         android:label="FragmentListFolowers" />
     <action
         android:id="@+id/action_global_fragmentAutentification"

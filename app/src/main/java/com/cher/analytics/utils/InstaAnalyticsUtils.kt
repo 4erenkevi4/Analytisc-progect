@@ -1,4 +1,4 @@
-package com.cher.instaanalytics.utils
+package com.cher.analytics.utils
 
 import android.app.Activity
 import android.content.Context
@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import androidx.core.content.ContextCompat.startActivity
 import java.io.Serializable
 
 object InstaAnalyticsUtils {

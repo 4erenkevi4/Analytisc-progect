@@ -1,4 +1,4 @@
-package com.cher.instaanalytics.fragments
+package com.cher.analytics.fragments
 
 import android.os.Build
 import android.os.Bundle
@@ -22,10 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.fragment.findNavController
 import coil.compose.rememberAsyncImagePainter
-import com.cher.instaanalytics.R
-import com.cher.instaanalytics.utils.AutentificationClient
-import com.cher.instaanalytics.utils.Constants
-import com.cher.instaanalytics.utils.InstaAnalyticsUtils
+import com.cher.analytics.R
+import com.cher.analytics.utils.AutentificationClient
+import com.cher.analytics.utils.Constants
+import com.cher.analytics.utils.InstaAnalyticsUtils
 import com.github.instagram4j.instagram4j.models.user.Profile
 
 class FragmentListFolowers : FragmentCompose() {
@@ -45,7 +45,7 @@ class FragmentListFolowers : FragmentCompose() {
             if (folowersMode == true)
                 viewModelBase.getFollowers(it, context, true)
             else
-                viewModelBase.searchUnFollowers(it, context)
+                viewModelBase.searchListUnFollowers(it, context, null)
 
         }
         buttonBack.setOnClickListener {

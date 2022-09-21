@@ -1,11 +1,11 @@
-package com.cher.instaanalytics.fragments
+package com.cher.analytics.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.cher.instaanalytics.R
+import com.cher.analytics.R
 
 open class FragmentBase : Fragment() {
 

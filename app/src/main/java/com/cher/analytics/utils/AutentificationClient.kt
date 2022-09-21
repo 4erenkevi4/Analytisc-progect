@@ -1,4 +1,4 @@
-package com.cher.instaanalytics.utils
+package com.cher.analytics.utils
 
 import android.content.Context
 import android.os.Environment
@@ -28,8 +28,8 @@ class AutentificationClient (){
         fun serializeLogin(username: String?, password: String?,context : Context ) {
             val directory = File(getDir(context))
             directory.mkdirs()
-            val to = File(directory, "client.ser")
-            val cookFile = File(directory, "cookie.ser")
+            val to = File(directory, "clien.ser")
+            val cookFile = File(directory, "cooki.ser")
             val lib = IGClient.Builder().username(username).password(password)
                 .onLogin { cli: IGClient?, lr: LoginResponse ->
                     println(lr.feedback_message)

@@ -1,10 +1,9 @@
-package com.cher.instaanalytics
+package com.cher.analytics
 
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
 
 
 class MainActivity : AppCompatActivity() {

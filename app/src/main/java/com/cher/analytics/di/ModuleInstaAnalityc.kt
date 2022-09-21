@@ -1,10 +1,10 @@
-package com.cher.instaanalytics.di
+package com.cher.analytics.di
 
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import com.cher.instaanalytics.utils.Constants.Companion.APP_PREFERENCES
-import com.cher.instaanalytics.viewModel.ViewModelBase
+import com.cher.analytics.utils.Constants.Companion.APP_PREFERENCES
+import com.cher.analytics.viewModel.ViewModelBase
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module

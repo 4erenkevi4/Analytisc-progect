@@ -1,4 +1,4 @@
-package com.cher.instaanalytics
+package com.cher.analytics
 
 import org.junit.Test
 

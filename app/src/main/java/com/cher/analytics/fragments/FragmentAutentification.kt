@@ -1,8 +1,9 @@
-package com.cher.instaanalytics.fragments
+package com.cher.analytics.fragments
 
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import com.cher.analytics.R
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,15 +19,14 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
-import com.cher.instaanalytics.R
-import com.cher.instaanalytics.utils.Constants.Companion.PROFILE_KEY
+import com.cher.analytics.utils.Constants.Companion.PROFILE_KEY
 
 class FragmentAutentification : FragmentCompose() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         viewModelBase.initInstagramClient(null, null, context)
         viewModelBase.selfProfile.observe(viewLifecycleOwner) { profile ->
-            if (profile.username.isNullOrEmpty())
+            if (profile?.username.isNullOrEmpty())
                 view.findViewById<ComposeView>(R.id.compose_view).setContent {
                     Greeting()
                 }

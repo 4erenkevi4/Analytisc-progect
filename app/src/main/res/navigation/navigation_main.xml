@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/fragmentBase"
-        android:name="com.cher.instaanalytics.fragments.FragmentBase"
+        android:name="com.cher.analytics.fragments.FragmentBase"
         android:label="FragmentBase" >
 
     </fragment>

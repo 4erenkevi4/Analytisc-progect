@@ -1,4 +1,4 @@
-package com.cher.instaanalytics.ui.theme
+package com.cher.analytics.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
