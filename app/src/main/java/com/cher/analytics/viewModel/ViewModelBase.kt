@@ -1,6 +1,7 @@
 package com.cher.analytics.viewModel
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
@@ -10,6 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cher.analytics.domain.repository.FollowersRepository
 import com.cher.analytics.utils.AutentificationClient
 import com.cher.analytics.utils.Constants
 import com.cher.analytics.utils.Constants.Companion.SP_LAST_FOLLOWERS_NUMBER
@@ -28,6 +30,9 @@ import kotlinx.coroutines.launch
 
 class ViewModelBase(context: Context) : ViewModel() {
 
+
+    val repository = FollowersRepository(Application())
+
     private val _callError = MutableLiveData<Error>()
     val callError: LiveData<java.lang.Error> = _callError
 
@@ -40,8 +45,8 @@ class ViewModelBase(context: Context) : ViewModel() {
     private val _getFollowings = MutableLiveData<List<Profile>>()
     val getFollowings: LiveData<List<Profile>> = _getFollowings
 
-    private val _getUnFollowers = MutableLiveData<List<String>>()
-    val getUnFollowers: LiveData<List<String>> = _getUnFollowers
+    private val _getUnFollowers = MutableLiveData<List<Profile>>()
+    val getUnFollowers: LiveData<List<Profile>> = _getUnFollowers
 
     private val _uploadFollowers = MutableLiveData<Int>()
     val uploadFollowers: LiveData<Int> = _uploadFollowers
@@ -80,10 +85,43 @@ class ViewModelBase(context: Context) : ViewModel() {
         ifNeedSave: Boolean,
         ifNeedAllList: Boolean = false,
     ) {
-        val listFollowers = responceFolowers(client, ifNeedAllList, ifNeedSave)
+        val followersNumber = repository.getNumberFollowers()
+        val lastNamderofFollowers = getSP(context).getInt(SP_LAST_FOLLOWERS_NUMBER, 0)
+        val isEqualsNumbers = followersNumber == lastNamderofFollowers
+        val listFollowers =
+            if (isEqualsNumbers) repository.getListFollowers() else responceFolowers(
+                client,
+                ifNeedAllList,
+                ifNeedSave
+            )
         _getFollowers.value = listFollowers
-        if (ifNeedSave)
+        if (ifNeedSave && isEqualsNumbers)  //TODO возможно надо удалить флаг ifNeedSave
             makeSNapshotFolowers(context, listFollowers)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun searchListUnFollowers(client: IGClient, context: Context, list: List<Profile>?) {
+        val newList = mutableListOf<Profile>()
+        val followersNumber = repository.getNumberFollowers()
+        val lastNumberOfFollowers = getSP(context).getInt(SP_LAST_FOLLOWERS_NUMBER, 0)
+        if (followersNumber == lastNumberOfFollowers) {
+            _getUnFollowers.value = listOf()
+            return
+        } else {
+            val lastListofFollowers = repository.getListFollowers()
+            val listFollowers = responceFolowers(
+                client,
+                ifNeedAllList = true,
+                ifNeedFolowings = false
+            )
+            lastListofFollowers.forEach() { oldFollower ->
+                if (listFollowers.any { it.username == oldFollower.username }.not()) {
+                    newList.add(oldFollower)
+                }
+            }
+            _getUnFollowers.value = newList
+
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -128,16 +166,23 @@ class ViewModelBase(context: Context) : ViewModel() {
     }
 
     @SuppressLint("CommitPrefEdits")
-    fun makeSNapshotFolowers(context: Context, listFollowers: MutableList<Profile>) {
-        val set = mutableSetOf<String>()
-        listFollowers.forEach { profile ->
-            set.add(profile.username)
+    fun makeSNapshotFolowers(context: Context, listFollowers: List<Profile>) {
+        val setUsernames = mutableSetOf<String>()
+        listFollowers.forEachIndexed { index, profile ->
+            setUsernames.add(profile.username)
         }
-        getSP(context).apply {
-            if (this.contains(SP_LIST_OF_USERS_KEY).not())
-            // this.edit().remove(SP_LIST_OF_USERS_KEY)
-                this.edit().putStringSet(SP_LIST_OF_USERS_KEY, set).apply()
+        val listusers = repository.getFollowers().last().listFollowers
+        if (listusers.isNullOrEmpty()) {
+            viewModelScope.launch {
+                repository.insertListFollowers(listFollowers)
+            }
         }
+
+        /*  getSP(context).apply {
+              if (this.contains(SP_LIST_OF_USERS_KEY).not())
+              // this.edit().remove(SP_LIST_OF_USERS_KEY)
+                  this.edit().putStringSet(SP_LIST_OF_USERS_KEY, setUsernames).apply()
+          }*/
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -160,8 +205,8 @@ class ViewModelBase(context: Context) : ViewModel() {
 
     @SuppressLint("CommitPrefEdits")
     private fun saveCurrentListToSP(sp: SharedPreferences, followers: Int) {
-        sp.edit().putLong(SP_TIME_LAST_SAVED, System.currentTimeMillis())
-        sp.edit().putInt(SP_LAST_FOLLOWERS_NUMBER, followers)
+        sp.edit().putLong(SP_TIME_LAST_SAVED, System.currentTimeMillis()).apply()
+        sp.edit().putInt(SP_LAST_FOLLOWERS_NUMBER, followers).apply()
     }
 
 
@@ -213,22 +258,6 @@ class ViewModelBase(context: Context) : ViewModel() {
         return client.sendRequest(req2).join().user
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun searchListUnFollowers(client: IGClient, context: Context, list: List<Profile>?) {
-        val sp = getSP(context)
-        val newList = mutableListOf<String>()
-        val oldList = sp.getStringSet(SP_LIST_OF_USERS_KEY, mutableSetOf())
-        val listFollowers = list ?: responceFolowers(client)
-        oldList?.let { oldUser ->
-            oldUser.forEach { username ->
-                if (listFollowers.any { it.username == username }.not()) {
-                    newList.add(username)
-                }
-
-            }
-        }
-        _getUnFollowers.value = newList
-    }
 
     private fun getSP(context: Context): SharedPreferences = context.getSharedPreferences(
         Constants.APP_PREFERENCES,

@@ -33,7 +33,8 @@ class FragmentListFolowers : FragmentCompose() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val context = context ?: return
-        val folowersMode = arguments?.getBoolean(Constants.FOLOWERS_MODE_KEY)
+        val folowersMode =
+            arguments?.getSerializable(Constants.FOLOWERS_MODE_KEY) as? InstaAnalyticsUtils.UsersTypeList
         val client =
             AutentificationClient.getClientFromSerialize(
                 Constants.IG_CLIENT_FILE_NAME,
@@ -42,9 +43,9 @@ class FragmentListFolowers : FragmentCompose() {
             )
         client?.let {
             titleTopBar.text = it.selfProfile.full_name
-            if (folowersMode == true)
+            if (folowersMode?.type == 1)
                 viewModelBase.getFollowers(it, context, true)
-            else
+            if (folowersMode?.type == 2)
                 viewModelBase.searchListUnFollowers(it, context, null)
 
         }
@@ -101,14 +102,14 @@ class FragmentListFolowers : FragmentCompose() {
     }
 
     @Composable
-    fun CreateListUnFollowers(mutableSet: List<String>?) {
+    fun CreateListUnFollowers(mutableSet: List<Profile>?) {
         LazyColumn {
-            itemsIndexed(mutableSet as List<String>) { index, username ->
+            itemsIndexed(mutableSet as List<Profile>) { index, profile ->
                 Row(modifier = Modifier
                     .padding(vertical = 4.dp)
                     .clickable {
                         InstaAnalyticsUtils.getToInstagramApp(
-                            username,
+                            profile.username,
                             context
                         )
                     }) {
@@ -119,8 +120,15 @@ class FragmentListFolowers : FragmentCompose() {
                             .size(30.dp),
                         color = Color.DarkGray
                     )
-
-                    Text(text = username)
+                    Image(
+                        painter = rememberAsyncImagePainter(profile.profile_pic_url),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(50.dp)
+                            .clip(CircleShape)
+                            .padding(horizontal = 8.dp)
+                    )
+                    Text(text = profile.username)
                 }
             }
         }

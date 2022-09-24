@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import com.github.instagram4j.instagram4j.models.user.User
 import java.io.Serializable
 
 object InstaAnalyticsUtils {
@@ -33,5 +34,9 @@ object InstaAnalyticsUtils {
             intent.data = Uri.parse("market://details?id=" + "com.instagram.android")
             context.startActivity(intent)
         }
+    }
+    enum class UsersTypeList(val type: Int){
+        LIST_FOLLOWERS(1),
+        LIST_FOLLOWINGS(2),
     }
 }

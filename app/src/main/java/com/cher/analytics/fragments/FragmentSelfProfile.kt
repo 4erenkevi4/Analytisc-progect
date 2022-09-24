@@ -14,8 +14,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -40,6 +39,8 @@ import androidx.navigation.fragment.findNavController
 import coil.compose.rememberAsyncImagePainter
 import com.cher.analytics.R
 import com.cher.analytics.data.CardInfo
+import com.cher.analytics.domain.FollowersDao
+import com.cher.analytics.fragments.view.ModalBottomSheetView
 import com.cher.analytics.utils.AutentificationClient
 import com.cher.analytics.utils.Constants
 import com.cher.analytics.utils.Constants.Companion.FOLOWERS_MODE_KEY
@@ -51,6 +52,7 @@ import com.github.instagram4j.instagram4j.models.user.User
 import com.github.instagram4j.instagram4j.requests.users.UsersInfoRequest
 import com.github.instagram4j.instagram4j.requests.users.UsersUsernameInfoRequest
 import com.github.instagram4j.instagram4j.responses.IGResponse
+import org.koin.android.ext.android.inject
 
 
 class FragmentSelfProfile : FragmentCompose() {
@@ -80,9 +82,12 @@ class FragmentSelfProfile : FragmentCompose() {
         val res: IGResponse = client.sendRequest(req2).join()
     }
 
+    @SuppressLint("CoroutineCreationDuringComposition")
     @RequiresApi(Build.VERSION_CODES.N)
     @Composable
     override fun Greeting() {
+        val sheetState = remember{ mutableStateOf(false)}
+
         val context = context ?: return
         val followersListState = viewModelBase.getFollowers.observeAsState()
         val ballanceFolowersState = viewModelBase.ballanceFollowers.observeAsState()
@@ -136,7 +141,10 @@ class FragmentSelfProfile : FragmentCompose() {
                                 text = selfProfile.media_count.toString(),
                                 modifier = Modifier
                                     .padding(top = 16.dp)
-                                    .align(CenterHorizontally),
+                                    .align(CenterHorizontally)
+                                    .clickable {
+                                        sheetState.value =true
+                                    },
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -215,7 +223,7 @@ class FragmentSelfProfile : FragmentCompose() {
                                 .clickable {
                                     findNavController().navigate(
                                         R.id.action_fragmentSelfProfile_to_fragmentListFolowers,
-                                        bundleOf(FOLOWERS_MODE_KEY to false)
+                                        bundleOf(FOLOWERS_MODE_KEY to InstaAnalyticsUtils.UsersTypeList.LIST_FOLLOWERS)
                                     )
                                 }) {
                             CreateCardInfo(
@@ -232,7 +240,7 @@ class FragmentSelfProfile : FragmentCompose() {
                                 onClick = {
                                     findNavController().navigate(
                                         R.id.action_fragmentSelfProfile_to_fragmentListFolowers,
-                                        bundleOf(FOLOWERS_MODE_KEY to false)
+                                        bundleOf(FOLOWERS_MODE_KEY to InstaAnalyticsUtils.UsersTypeList.LIST_FOLLOWINGS)
                                     )
                                 }
                             )
@@ -310,6 +318,7 @@ class FragmentSelfProfile : FragmentCompose() {
                         }
                     }
                 }
+                ModalBottomSheetView(sheetState, Color.Yellow, 30.dp)
             }
         }
     }
@@ -323,15 +332,15 @@ class FragmentSelfProfile : FragmentCompose() {
             } else if (balance > 0) {
                 "на Вас подписалось"
             } else if (balance == -1) {
-                "от Вас отписалося"
+                "от Вас отписался"
             } else "от Вас отписалось"
         val number =
             if (balance == 1) {
-                "$balance новых аккаунт"
+                "$balance новый аккаунт"
             } else if (balance > 0) {
                 "$balance новых аккаунта"
             } else if (balance == -1) {
-                "$balance  аккаунт"
+                "1  аккаунт"
             } else "$balance аккаунта"
 
         Card(

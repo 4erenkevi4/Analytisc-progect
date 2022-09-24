@@ -9,7 +9,8 @@ class Constants {
 
         //SP keys
         const val APP_PREFERENCES = "com.instaAnalytics.app"
-        const val SP_LIST_OF_USERS_KEY = "com.instaAnalytics.app"
+        const val SP_LIST_OF_USERS_KEY = "com.instaAnalytics.app_username"
+        const val SP_LIST_OF_USERS_PHOTO_URL_KEY = "com.instaAnalytics.app_photo"
         const val SP_TIME_LAST_SAVED = "time_last_saved"
         const val SP_LAST_FOLLOWERS_NUMBER = "number_of_followers"
 
