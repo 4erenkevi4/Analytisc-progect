@@ -1,5 +1,7 @@
 package com.cher.analytics.fragments
 
+import android.content.Context
+import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -14,7 +16,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,16 +24,20 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.fragment.findNavController
 import coil.compose.rememberAsyncImagePainter
 import com.cher.analytics.R
+import com.cher.analytics.data.FormattedFollowers
 import com.cher.analytics.utils.AutentificationClient
 import com.cher.analytics.utils.Constants
 import com.cher.analytics.utils.InstaAnalyticsUtils
-import com.github.instagram4j.instagram4j.models.user.Profile
+
 
 class FragmentListFolowers : FragmentCompose() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val dsds = linkedSetOf<String>()
+        sp.edit().putStringSet("dsds",dsds )
         val context = context ?: return
+
         val folowersMode =
             arguments?.getSerializable(Constants.FOLOWERS_MODE_KEY) as? InstaAnalyticsUtils.UsersTypeList
         val client =
@@ -60,17 +65,17 @@ class FragmentListFolowers : FragmentCompose() {
         val followersListState = viewModelBase.getFollowers.observeAsState()
         val unFolowersState = viewModelBase.getUnFollowers.observeAsState()
         if (followersListState.value.isNullOrEmpty().not() && folowersMode == true) {
-            CreateListFolovers(followersListState)
+            CreateListFolovers(followersListState.value!!)
         }
         if (unFolowersState.value.isNullOrEmpty().not()) {
-            CreateListUnFollowers(unFolowersState.value)
+            CreateListUnFollowers(unFolowersState.value!!)
         }
     }
 
     @Composable
-    fun CreateListFolovers(mutableList: State<List<Profile>?>) {
+    fun CreateListFolovers(mutableList: List<FormattedFollowers>) {
         LazyColumn {
-            itemsIndexed(mutableList.value as List<Profile>) { index, profile ->
+            itemsIndexed(mutableList) { index, profile ->
                 Row(modifier = Modifier
                     .padding(vertical = 4.dp)
                     .clickable {
@@ -87,7 +92,7 @@ class FragmentListFolowers : FragmentCompose() {
                         color = Color.DarkGray
                     )
                     Image(
-                        painter = rememberAsyncImagePainter(profile.profile_pic_url),
+                        painter = rememberAsyncImagePainter(profile.photoUrl),
                         contentDescription = null,
                         modifier = Modifier
                             .size(50.dp)
@@ -102,9 +107,9 @@ class FragmentListFolowers : FragmentCompose() {
     }
 
     @Composable
-    fun CreateListUnFollowers(mutableSet: List<Profile>?) {
+    fun CreateListUnFollowers(mutableSet: List<FormattedFollowers>?) {
         LazyColumn {
-            itemsIndexed(mutableSet as List<Profile>) { index, profile ->
+            itemsIndexed(mutableSet as List<FormattedFollowers>) { index, profile ->
                 Row(modifier = Modifier
                     .padding(vertical = 4.dp)
                     .clickable {
@@ -121,7 +126,7 @@ class FragmentListFolowers : FragmentCompose() {
                         color = Color.DarkGray
                     )
                     Image(
-                        painter = rememberAsyncImagePainter(profile.profile_pic_url),
+                        painter = rememberAsyncImagePainter(profile.photoUrl),
                         contentDescription = null,
                         modifier = Modifier
                             .size(50.dp)

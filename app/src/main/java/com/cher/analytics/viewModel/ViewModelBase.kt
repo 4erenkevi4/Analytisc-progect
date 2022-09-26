@@ -11,6 +11,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cher.analytics.data.Followers
+import com.cher.analytics.data.FormattedFollowers
+import com.cher.analytics.data.ListFollowers
 import com.cher.analytics.domain.repository.FollowersRepository
 import com.cher.analytics.utils.AutentificationClient
 import com.cher.analytics.utils.Constants
@@ -39,14 +42,14 @@ class ViewModelBase(context: Context) : ViewModel() {
     private val _selfProfile = MutableLiveData<User?>()
     val selfProfile: LiveData<User?> = _selfProfile
 
-    private val _getFollowers = MutableLiveData<List<Profile>>()
-    val getFollowers: LiveData<List<Profile>> = _getFollowers
+    private val _getFollowers = MutableLiveData<List<FormattedFollowers>>()
+    val getFollowers: LiveData<List<FormattedFollowers>> = _getFollowers
 
-    private val _getFollowings = MutableLiveData<List<Profile>>()
-    val getFollowings: LiveData<List<Profile>> = _getFollowings
+    private val _getFollowings = MutableLiveData<List<FormattedFollowers>>()
+    val getFollowings: LiveData<List<FormattedFollowers>> = _getFollowings
 
-    private val _getUnFollowers = MutableLiveData<List<Profile>>()
-    val getUnFollowers: LiveData<List<Profile>> = _getUnFollowers
+    private val _getUnFollowers = MutableLiveData<List<FormattedFollowers>>()
+    val getUnFollowers: LiveData<List<FormattedFollowers>> = _getUnFollowers
 
     private val _uploadFollowers = MutableLiveData<Int>()
     val uploadFollowers: LiveData<Int> = _uploadFollowers
@@ -88,20 +91,20 @@ class ViewModelBase(context: Context) : ViewModel() {
         val followersNumber = repository.getNumberFollowers()
         val lastNamderofFollowers = getSP(context).getInt(SP_LAST_FOLLOWERS_NUMBER, 0)
         val isEqualsNumbers = followersNumber == lastNamderofFollowers
-        val listFollowers =
+        _getFollowers.value =
             if (isEqualsNumbers) repository.getListFollowers() else responceFolowers(
                 client,
                 ifNeedAllList,
                 ifNeedSave
             )
-        _getFollowers.value = listFollowers
-        if (ifNeedSave && isEqualsNumbers)  //TODO возможно надо удалить флаг ifNeedSave
-            makeSNapshotFolowers(context, listFollowers)
+
+        if (ifNeedSave && isEqualsNumbers && _getFollowers.value != null)  //TODO возможно надо удалить флаг ifNeedSave
+            makeSNapshotFolowers(context, _getFollowers.value!!)
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
     fun searchListUnFollowers(client: IGClient, context: Context, list: List<Profile>?) {
-        val newList = mutableListOf<Profile>()
+        val newList = mutableListOf<FormattedFollowers>()
         val followersNumber = repository.getNumberFollowers()
         val lastNumberOfFollowers = getSP(context).getInt(SP_LAST_FOLLOWERS_NUMBER, 0)
         if (followersNumber == lastNumberOfFollowers) {
@@ -136,8 +139,8 @@ class ViewModelBase(context: Context) : ViewModel() {
         client: IGClient,
         ifNeedAllList: Boolean = false,
         ifNeedFolowings: Boolean = false
-    ): MutableList<Profile> {
-        val listFollowers = mutableListOf<Profile>()
+    ): MutableList<FormattedFollowers> {
+        val listFollowers = mutableListOf<FormattedFollowers>()
         viewModelScope.launch {
             var response =
                 FriendshipsFeedsRequest(
@@ -145,7 +148,16 @@ class ViewModelBase(context: Context) : ViewModel() {
                     if (ifNeedFolowings) FriendshipsFeedsRequest.FriendshipsFeeds.FOLLOWING else FriendshipsFeedsRequest.FriendshipsFeeds.FOLLOWERS
                 ).execute(client)
                     .join()
-            listFollowers.addAll(response.users)
+            response.users.forEach() { profile ->
+                listFollowers.add(
+                    FormattedFollowers(
+                        username = profile.username,
+                        fullName = profile.full_name,
+                        photoUrl = profile.profile_pic_url,
+                        pk = profile.pk
+                    )
+                )
+            }
             _uploadFollowers.value = response.users.size
             println("${response.users.size} users successfully uploaded")
             if (ifNeedAllList) {
@@ -158,7 +170,16 @@ class ViewModelBase(context: Context) : ViewModel() {
                         .join()
                     _uploadFollowers.value = response.users.size
                     println("${response.users.size} users successfully uploaded")
-                    listFollowers.addAll(response.users)
+                    response.users.forEach() { profile ->
+                        listFollowers.add(
+                            FormattedFollowers(
+                                username = profile.username,
+                                fullName = profile.full_name,
+                                photoUrl = profile.profile_pic_url,
+                                pk = profile.pk
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -166,15 +187,21 @@ class ViewModelBase(context: Context) : ViewModel() {
     }
 
     @SuppressLint("CommitPrefEdits")
-    fun makeSNapshotFolowers(context: Context, listFollowers: List<Profile>) {
+    fun makeSNapshotFolowers(context: Context, listFollow: List<FormattedFollowers>) {
         val setUsernames = mutableSetOf<String>()
-        listFollowers.forEachIndexed { index, profile ->
+        listFollow.forEachIndexed { index, profile ->
             setUsernames.add(profile.username)
         }
-        val listusers = repository.getFollowers().last().listFollowers
+        val listusers = repository.getFollowers().last().listFollowers?.listFollowers
         if (listusers.isNullOrEmpty()) {
             viewModelScope.launch {
-                repository.insertListFollowers(listFollowers)
+                repository.insertListFollowers(
+                    Followers(
+                        listFollowers = ListFollowers(listFollow),
+                        listFollow.size,
+                        saveTime = System.currentTimeMillis()
+                    )
+                )
             }
         }
 
@@ -212,16 +239,25 @@ class ViewModelBase(context: Context) : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.N)
     fun getFollowing(client: IGClient) {
-        val listFollowers = mutableStateListOf<Profile>()
+        val listFollowers = mutableStateListOf<FormattedFollowers>()
         val response =
             FriendshipsFeedsRequest(
                 client.selfProfile.pk,
                 FriendshipsFeedsRequest.FriendshipsFeeds.FOLLOWING
             ).execute(client)
                 .join()
-        listFollowers.addAll(response.users)
-        println("Users Successfully uploaded")
-        _getFollowers.value = listFollowers
+        response.users.forEach { profile ->
+            listFollowers.add(
+                FormattedFollowers(
+                    username = profile.username,
+                    fullName = profile.full_name,
+                    photoUrl = profile.profile_pic_url,
+                    pk = profile.pk
+                )
+            )
+        }
+        println("followings Successfully uploaded")
+        _getFollowings.value = listFollowers
     }
 
     @RequiresApi(Build.VERSION_CODES.N)

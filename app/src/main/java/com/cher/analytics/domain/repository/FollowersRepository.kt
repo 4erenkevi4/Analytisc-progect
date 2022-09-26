@@ -1,6 +1,7 @@
 package com.cher.analytics.domain.repository
 
 import android.app.Application
+import com.cher.analytics.data.Followers
 import com.cher.analytics.domain.FollowersDao
 import com.cher.analytics.domain.FollowersDatabase
 import com.github.instagram4j.instagram4j.models.user.Profile
@@ -13,7 +14,7 @@ class FollowersRepository ( application: Application
         db.getFollowersDao()
     }
 
-    suspend fun insertListFollowers(list: List<Profile>) = followersDao.insertListFollowers(list)
+    suspend fun insertListFollowers(followers: Followers) = followersDao.insertListFollowers(followers)
 
     fun getFollowers() = followersDao.getFollowers()  // returns list followers and list followings
 

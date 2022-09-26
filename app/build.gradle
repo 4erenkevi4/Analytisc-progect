@@ -3,7 +3,6 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'io.freefair.lombok' version '5.1.0'
     id 'kotlin-kapt'
-
 }
 
 android {
@@ -84,7 +83,10 @@ dependencies {
     implementation 'com.github.instagram4j:instagram4j:2.0.7'
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
     implementation("io.coil-kt:coil-compose:2.0.0-rc01")
-    annotationProcessor 'org.projectlombok:lombok:1.18.4'
+   annotationProcessor 'org.projectlombok:lombok:1.18.4'
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0"
+    implementation 'com.google.code.gson:gson:2.8.9'
+
 
     //for insta
     testImplementation 'log4j:log4j:1.2.17'
