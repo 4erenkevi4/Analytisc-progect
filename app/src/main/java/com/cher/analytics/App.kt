@@ -1,7 +1,6 @@
 package com.cher.analytics
 
 import android.app.Application
-import com.cher.analytics.di.followersDAO
 import com.cher.analytics.di.sharedPreferences
 import com.cher.analytics.di.viewModelBase
 import org.koin.android.ext.koin.androidContext
@@ -13,7 +12,7 @@ class App : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@App)
-            modules(listOf(viewModelBase, sharedPreferences, followersDAO))
+            modules(listOf(viewModelBase, sharedPreferences))
         }
     }
 }

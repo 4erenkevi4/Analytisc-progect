@@ -14,8 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import com.cher.analytics.R
-import com.cher.analytics.domain.FollowersDao
-import com.cher.analytics.domain.repository.FollowersRepository
+
 import com.cher.analytics.viewModel.ViewModelBase
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -24,7 +23,6 @@ import org.koin.experimental.property.inject
 abstract class FragmentCompose : Fragment() {
 
     val viewModelBase: ViewModelBase by viewModel()
-    val repository : FollowersRepository by inject()
     val sp : SharedPreferences by inject()
 
     lateinit var topBar: LinearLayout

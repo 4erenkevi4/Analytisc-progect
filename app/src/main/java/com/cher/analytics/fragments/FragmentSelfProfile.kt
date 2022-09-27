@@ -40,7 +40,6 @@ import coil.compose.rememberAsyncImagePainter
 import com.cher.analytics.R
 import com.cher.analytics.data.CardInfo
 import com.cher.analytics.data.FormattedFollowers
-import com.cher.analytics.domain.FollowersDao
 import com.cher.analytics.fragments.view.ModalBottomSheetView
 import com.cher.analytics.utils.AutentificationClient
 import com.cher.analytics.utils.Constants
@@ -379,8 +378,8 @@ class FragmentSelfProfile : FragmentCompose() {
     }
 
     @Composable
-    fun LastFollowers(listFollowers: List<FormattedFollowers>) {
-        val list = mutableListOf<FormattedFollowers>()
+    fun LastFollowers(listFollowers: List<Profile>) {
+        val list = mutableListOf<Profile>()
         if (listFollowers.size > 30) {
             for (i in 0..30) {
                 list.add(i, listFollowers[i])
@@ -408,7 +407,7 @@ class FragmentSelfProfile : FragmentCompose() {
                     itemsIndexed(list) { index, profile ->
                         Column(Modifier.size(56.dp, 70.dp)) {
                             Image(
-                                painter = rememberAsyncImagePainter(profile.photoUrl),
+                                painter = rememberAsyncImagePainter(profile.profile_pic_url),
                                 contentDescription = null,
                                 modifier = Modifier
                                     .padding(8.dp)

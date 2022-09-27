@@ -28,16 +28,14 @@ import com.cher.analytics.data.FormattedFollowers
 import com.cher.analytics.utils.AutentificationClient
 import com.cher.analytics.utils.Constants
 import com.cher.analytics.utils.InstaAnalyticsUtils
+import com.github.instagram4j.instagram4j.models.user.Profile
 
 
 class FragmentListFolowers : FragmentCompose() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val dsds = linkedSetOf<String>()
-        sp.edit().putStringSet("dsds",dsds )
         val context = context ?: return
-
         val folowersMode =
             arguments?.getSerializable(Constants.FOLOWERS_MODE_KEY) as? InstaAnalyticsUtils.UsersTypeList
         val client =
@@ -73,7 +71,7 @@ class FragmentListFolowers : FragmentCompose() {
     }
 
     @Composable
-    fun CreateListFolovers(mutableList: List<FormattedFollowers>) {
+    fun CreateListFolovers(mutableList: List<Profile>) {
         LazyColumn {
             itemsIndexed(mutableList) { index, profile ->
                 Row(modifier = Modifier
@@ -92,7 +90,7 @@ class FragmentListFolowers : FragmentCompose() {
                         color = Color.DarkGray
                     )
                     Image(
-                        painter = rememberAsyncImagePainter(profile.photoUrl),
+                        painter = rememberAsyncImagePainter(profile.profile_pic_url),
                         contentDescription = null,
                         modifier = Modifier
                             .size(50.dp)
